@@ -26,8 +26,9 @@ def create_table_if_not_exists(cursor):
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS prices (
-            datetime TEXT PRIMARY KEY,
-            price REAL
+            timestamp INTEGER PRIMARY KEY,
+            datetime TEXT UNIQUE NOT NULL,
+            price REAL NOT NULL
         )
         """
     )
@@ -60,6 +61,8 @@ if response.status_code == 200:
             try:
                 rows.append(
                     (
+                        int(parts[0]),
+                        # Convert timestamp to datetime to get the timezone
                         datetime.fromtimestamp(int(parts[0]), tz),
                         locale.atof(parts[2]),
                     )
@@ -76,7 +79,7 @@ if response.status_code == 200:
     # Insert rows into the table
     cursor.executemany(
         """
-        INSERT OR REPLACE INTO prices (datetime, price) VALUES (?, ?)
+        INSERT OR REPLACE INTO prices (timestamp, datetime, price) VALUES (?, ?, ?)
         """,
         rows,
     )
