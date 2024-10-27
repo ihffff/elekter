@@ -6,7 +6,7 @@ import pytz
 from datetime import datetime
 
 HOURS_TO_EXCLUDE = 6
-CONSECUTIVE = 1
+CONSECUTIVE = 2
 
 
 def load_data():
