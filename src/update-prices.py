@@ -88,4 +88,4 @@ if response.status_code == 200:
     conn.commit()
     conn.close()
 else:
-    print(f"Failed to download the CSV file. Status code: {response.status_code}")
+    print("Failed to download the CSV file. Status code: {}".format(response.status_code))

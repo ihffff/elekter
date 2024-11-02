@@ -16,8 +16,8 @@ def load_data(start, end):
     cursor = conn.cursor()
 
     # Convert the timezone-aware datetime objects to Unix timestamps
-    start_timestamp = int(start.timestamp())
-    end_timestamp = int(end.timestamp())
+    start_timestamp = int((start - datetime(1970, 1, 1, tzinfo=pytz.utc)).total_seconds())
+    end_timestamp = int((end - datetime(1970, 1, 1, tzinfo=pytz.utc)).total_seconds())
 
     cursor.execute(
         "SELECT timestamp, datetime, price FROM prices WHERE timestamp >= ? AND timestamp < ? ORDER BY price DESC, timestamp ASC",
