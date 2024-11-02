@@ -17,7 +17,7 @@ function getDesiredStates(callback) {
                 return;
             }
 
-            print("Desired states updated");
+            print("Desired states updated " + response.body);
             callback(JSON.parse(response.body));
         }
     );

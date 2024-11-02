@@ -3,6 +3,7 @@
 import sqlite3
 import itertools
 import pytz
+import json
 from datetime import date, time, datetime, timedelta
 
 HOURS_TO_EXCLUDE = 6
@@ -11,6 +12,7 @@ CONSECUTIVE = 2
 
 def load_data(start, end):
     conn = sqlite3.connect("prices.db")
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
     # Convert the timezone-aware datetime objects to Unix timestamps
@@ -18,13 +20,13 @@ def load_data(start, end):
     end_timestamp = int(end.timestamp())
 
     cursor.execute(
-        "SELECT timestamp, price FROM prices WHERE timestamp >= ? AND timestamp < ? ORDER BY price DESC, timestamp ASC",
+        "SELECT timestamp, datetime, price FROM prices WHERE timestamp >= ? AND timestamp < ? ORDER BY price DESC, timestamp ASC",
         (start_timestamp, end_timestamp),
     )
 
     results = {}
     for row in cursor:
-        results[row[0]] = float(row[1])
+        results[row[0]] = dict(zip(row.keys(), row))
 
     conn.close()
     return results
@@ -53,7 +55,7 @@ timestamps = list(results.keys())
 combinations = list(itertools.combinations(timestamps, HOURS_TO_EXCLUDE))
 
 # Calculate the sum of dictionary values for each combination
-totals = [(combo, sum(results[ts] for ts in combo)) for combo in combinations]
+totals = [(combo, sum(float(results[ts]["price"]) for ts in combo)) for combo in combinations]
 
 # Filter out combinations with consecutive timestamps
 filtered_combinations = []
@@ -97,26 +99,11 @@ cursor.executemany(
     """
     INSERT OR REPLACE INTO high_prices (timestamp, price) VALUES (?, ?)
     """,
-    [(x, results[x]) for x in top_combinations[0][0]],
+    [(x, results[x]["price"]) for x in top_combinations[0][0]],
 )
 
 # Commit the transaction and close the connection
 conn.commit()
 conn.close()
 
-exit(0)
-
-print(f"Highest is {highest:.2f}\n")
-
-first = True
-for combo, total in top_combinations:
-    print(
-        f"Combination: {combo}, Sum: {total:7.2f}, Difference: {(highest - total):6.2f} ({((highest - total) * 100 / highest):.1f}%)"
-    )
-
-    if first:
-        first = False
-        for ts in combo:
-            print(
-                f"    {datetime.fromtimestamp(ts, timezone).time()} = {results[ts]:.2f}"
-            )
+print(json.dumps({key: False if key in top_combinations[0][0] else True for key, value in results.items()}, indent=4))
