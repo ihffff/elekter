@@ -107,3 +107,6 @@ conn.commit()
 conn.close()
 
 print(json.dumps({key: False if key in top_combinations[0][0] else True for key, value in results.items()}, indent=4))
+
+# debug = {key: {**value, "status": False if key in top_combinations[0][0] else True} for key, value in results.items()}
+# print(json.dumps(dict(sorted(debug.items())), indent=4))
