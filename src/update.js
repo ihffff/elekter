@@ -44,7 +44,7 @@ function main(id) {
     current_timestamp = getTimestamp();
     print("Current timestamp is " + current_timestamp);
 
-    if (desired_states[ts] !== undefined) {
+    if (desired_states[current_timestamp] !== undefined) {
         print("Desired state for current hour is " + desired_states[current_timestamp]);
         changeSwitchState(id, desired_states[current_timestamp]);
     } else {
