@@ -45,7 +45,7 @@ def create_table_if_not_exists(cursor):
 
 
 timezone = pytz.timezone("Europe/Tallinn")
-start = timezone.localize(datetime.combine(date.today() + timedelta(days=0), time.min))
+start = timezone.localize(datetime.combine(date.today() + timedelta(days=1), time.min))
 end = start + timedelta(days=1)
 results = load_data(start, end)
 
@@ -106,7 +106,7 @@ cursor.executemany(
 conn.commit()
 conn.close()
 
-print(json.dumps({key: False if key in top_combinations[0][0] else True for key, value in results.items()}, indent=4))
+print(json.dumps({key: False if key in top_combinations[0][0] else True for key, value in sorted(results.items())}, indent=4))
 
 # debug = {key: {**value, "status": False if key in top_combinations[0][0] else True} for key, value in results.items()}
 # print(json.dumps(dict(sorted(debug.items())), indent=4))
